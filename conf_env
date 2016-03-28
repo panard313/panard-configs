@@ -1,0 +1,2 @@
+CONF_PATH=$HOME/panard-config
+PATH=$PATH:$HOME/bin
