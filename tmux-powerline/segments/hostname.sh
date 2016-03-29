@@ -26,6 +26,7 @@ run_segment() {
 		fi
 	fi
 
-	hostname ${opts}
+	#hostname ${opts}
+	hostname |sed 's/^\w\|\s\w/\U&/g'
 	return 0
 }
