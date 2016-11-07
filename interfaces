@@ -1,0 +1,25 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+
+auto eth0
+iface eth0 inet static
+address 33.33.33.31
+netmask 255.255.255.0
+gateway 33.33.33.2
+dns-nameservers 33.33.33.2
+
+
+iface wlan0 inet static
+wpa-ssid  netgear          #你要连接的wifi ssid
+wpa-psk  1234567890     #你的wpa连接密码
+address 192.168.1.110     # 设定的静态IP地址
+netmask 255.255.255.0     # 网络掩码
+gateway 192.168.1.1      # 网关
+network 192.168.1.1      # 网络地址
+##wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf       #注释掉这一行
+iface default inet dhcp

@@ -6,7 +6,8 @@ run_segment() {
 		#cpu_user=$(echo "$cpu_line" | grep -Po "(\d+(.\d+)?)(?=%?\s?(us(er)?))")
 		#cpu_system=$(echo "$cpu_line" | grep -Po "(\d+(.\d+)?)(?=%?\s?(sys?))")
 		#cpu_idle=$(echo "$cpu_line" | grep -Po "(\d+(.\d+)?)(?=%?\s?(id(le)?))")
-		cpu_idle=$(vmstat |awk 'NR==3 {print $15}')
+		#cpu_idle=$(vmstat |awk 'NR==3 {print $15}')
+		cpu_idle=0
 	elif shell_is_osx; then 
 		cpus_line=$(top -e -l 1 | grep "CPU usage:" | sed 's/CPU usage: //')
 		cpu_user=$(echo "$cpus_line" | awk '{print $1}'  | sed 's/%//' )
@@ -18,7 +19,7 @@ run_segment() {
 		#echo "${cpu_user}, ${cpu_system}, ${cpu_idle}" | awk -F', ' '{printf("%5.1f,%5.1f,%5.1f",$1,$2,$3)}'
 	if [ -n "$cpu_idle" ]; then
 		#echo "${cpu_idle}"
-		echo 100 "${cpu_idle}" | awk '{printf "CPU:%d\%\n",$1-$2}'
+		  echo CPU: $[100-$(vmstat 1 2|tail -1|awk '{print $15}')]
 		return 0
 	else
 		return 1

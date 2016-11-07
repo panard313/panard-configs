@@ -180,7 +180,7 @@ build_prompt() {
   #prompt_context
   prompt_time
   prompt_dir
-  prompt_git
+  #prompt_git
   prompt_hg
   prompt_end
 }

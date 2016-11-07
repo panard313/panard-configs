@@ -28,3 +28,10 @@ alias s='ls'
 
 alias rscp='rsync -v -P -e ssh'
 alias sshfs='sshfs -o allow_other'
+
+alias ec='emacsclient'
+alias et='emacsclient -t'
+
+alias 100='ssh chenxiong@192.168.1.100'
+alias 31='ssh panard@33.33.33.31'
+alias 216='ssh -p 22222 panard@216.189.156.87'
