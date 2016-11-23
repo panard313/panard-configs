@@ -2,6 +2,11 @@ if [ -d $HOME/panard-config ]; then
    source $HOME/panard-config/conf_env
 fi
 
+if [ -f $CONF_PATH/path  ]; then
+    source $CONF_PATH/path
+fi
+
+
 # Path to your oh-my-zsh installation.
 ZSH=$CONF_PATH/oh-my-zsh/
 
@@ -88,6 +93,9 @@ if [ -f $CONF_PATH/alias ]; then
      source $CONF_PATH/alias
 fi
 
+if [ -f $CONF_PATH/z.sh ]; then
+   source $CONF_PATH/z.sh
+fi
 
 #ls colors from linux deepin
 if [[ ("$TERM" = *256color || "$TERM" = screen* || "$TERM" = xterm* ) && -f $CONF_PATH/lscolor-256color ]]; then

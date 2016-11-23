@@ -6,16 +6,9 @@ if [ -d $HOME/panard-config ]; then
     source $HOME/panard-config/conf_env
 fi
 
-
-#export JAVA_HOME=/opt/jdk1.6.0_45
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
-export JRE_HOME=$JAVA_HOME/jre
-#export CLASSPATH=$JAVA_HOME/lib
-export PATH=$JAVA_HOME/bin:JRE_HOME/bin:$PATH
-#export PATH=$PATH:/opt/FriendlyARM/toolschain/4.4.3/bin
-#export PATH=$PATH:/opt/FriendlyARM/toolschain/4.5.1/bin
-export PROMPT_COMMAND="history -a"
-export NDK=$HOME/stuff/android-ndk-r9d
+if [ -f $CONF_PATH/path ]; then
+    source $CONF_PATH/path
+fi
 
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
