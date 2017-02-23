@@ -1,0 +1,9 @@
+let g:airline_powerline_fonts=1
+"let g:airline_theme = 'base16_monokai'
+let g:airline_theme = 'term'
+let g:spf13_leader=' '
+set t_Co=256
+"add by cx----
+imap jk <esc>
+"inoremap kj <esc>
+inoremap kj <RIGHT>
