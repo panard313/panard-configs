@@ -6,8 +6,8 @@ if [ -d $HOME/panard-config ]; then
     source $HOME/panard-config/conf_env
 fi
 
-if [ -f $CONF_PATH/path ]; then
-    source $CONF_PATH/path
+if [ -f $CONF_PATH/path_env ]; then
+    source $CONF_PATH/path_env
 fi
 
 # If not running interactively, don't do anything
