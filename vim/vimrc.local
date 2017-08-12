@@ -4,3 +4,5 @@ nnoremap <Leader>w :w<cr>
 nnoremap <Leader>q :q<cr>
 nnoremap <Leader>fw :w<cr>
 nnoremap <Leader>fq :q<cr>
+
+set mouse -=a

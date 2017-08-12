@@ -25,6 +25,8 @@ alias install='apt-get install'
 alias search='apt-cache search'
 alias ks='ls'
 alias s='ls'
+alias ald='adb shell logcat >~/tmp/log-`date +%Y-%m-%d_%H-%M-%S`'
+alias al='adb shell logcat >~/tmp/log'
 
 alias rscp='rsync -v -P -e ssh'
 alias sshfs='sshfs -o allow_other'
