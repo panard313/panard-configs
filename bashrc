@@ -101,3 +101,7 @@ else
     eval $(dircolors)
 fi
 
+#ignore case while auto completion
+set completion-ignore-case on
+
+export USE_CCACHE=1

@@ -10,6 +10,7 @@
 [core]
 	editor = vim
 	pager = more
+    autocrlf = input
 #[color]
 #	ui = auto
 [merge]
@@ -45,6 +46,8 @@
     cp = cherry-pick
     ca = commit -a
     b = branch
-	mg = merge
+    mg = merge
+    s = stash
+
 [commit]
     template = /home/panard/panard-config/git/gitmsg.txt
