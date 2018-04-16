@@ -51,3 +51,7 @@ alias grep="/bin/grep $GREP_OPTIONS"
 unset GREP_OPTIONS
 
 alias gsd='gsd.sh'
+alias gl='git log --date=iso-strict'
+
+alias g='godir'
+alias cr='croot'
