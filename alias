@@ -52,6 +52,9 @@ unset GREP_OPTIONS
 
 alias gsd='gsd.sh'
 alias gl='git log --date=iso-strict'
+alias grh='git reset HEAD'
 
 alias g='godir'
 alias cr='croot'
+
+alias fn='fn.sh'
