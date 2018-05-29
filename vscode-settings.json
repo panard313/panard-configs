@@ -1,0 +1,87 @@
+{
+    //desc: $HOME/.config/Code - Insiders/User/settings.json
+
+    "git.ignoreLegacyWarning": true,
+    "window.zoomLevel": 1,
+
+    //vim settings
+    //enable easymotion
+    "vim.easymotion": true,
+    "vim.leader": " ",
+    "vim.otherModesKeyBindingsNonRecursive": [
+      {
+          "before": ["<leader>", "f", "f"],
+          "after": [],
+          "commands": [
+              {
+                  "command": "workbench.action.quickOpen",
+                  "args": []
+              },
+          ]
+      },
+      {
+          "before": ["<leader>", "f", "o"],
+          "after": [],
+          "commands": [
+              {
+                  "command": "workbench.action.files.open",
+                  "args": []
+              },
+          ]
+      },
+      {
+          "before": ["<leader>", "f", "q"],
+          "after": [],
+          "commands": [
+              {
+                  "command": "workbench.action.closeActiveEditor",
+                  "args": []
+              },
+          ]
+      },
+      {
+          "before": ["<leader>", "f", "w"],
+          "after": [],
+          "commands": [
+              {
+                  "command": "workbench.action.files.save",
+                  "args": []
+              },
+          ]
+      },
+      {
+          "before": ["<leader>", "v"],
+          "after": [],
+          "commands": [
+              {
+                  "command": "open-in-vim.open",
+                  "args": []
+              },
+          ]
+      },
+    ],
+    "vim.insertModeKeyBindings": [
+      {
+          "before": ["j", "j"],
+          "after": ["<Esc>"]
+      }
+    ],
+    "vim.insertModeKeyBindings": [
+      {
+          "before": ["j", "k"],
+          "after": ["<Right>"]
+      }
+    ],
+    "vim.insertModeKeyBindings": [
+      {
+          "before": ["k", "j"],
+          "after": ["<Right>"]
+      }
+    ],
+
+
+    //open in vim settings
+    "open-in-vim.openMethod": "linux.gnome-terminal",
+    //"open-in-vim.linux.gnome-terminal.args": "--hide-menubar --full-screen"
+    "open-in-vim.linux.gnome-terminal.args": ""
+}
