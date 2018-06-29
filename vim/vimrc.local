@@ -2,8 +2,10 @@
 "quick save file
 nnoremap <Leader>w :w<cr>
 nnoremap <Leader>q :q<cr>
+nnoremap <Leader>qa :qa<cr>
 nnoremap <Leader>fw :w<cr>
 nnoremap <Leader>fq :q<cr>
+noremap  <expr>0     col('.') == 1 ? '^': '0'
 
 set mouse -=a
 highlight WhitespaceEOL ctermbg=red guibg=red
@@ -11,6 +13,16 @@ match WhitespaceEOL /\s\+$/
 
 "for tagbar
 let g:tagbar_left = 1 "左侧显示
-let g:tagbar_width = 30 "宽度30,默认40
+let g:tagbar_width = 60 "宽度30,默认40
 let g:tagbar_autofocus = 1 "打开后光标置于tarbar
 let g:tagbar_sort = 0 "不排序
+let g:tagbar_autoclose = 1 "跳转后关闭tagbar
+let g:tagbar_zoomwidth = 1 "适应宽度
+
+set wrap
+
+let g:solarized_termtrans = 1
+
+let g:pymode_python = 'python2'
+
+set hlsearch "search highlight"

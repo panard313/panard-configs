@@ -1,2 +1,5 @@
 Bundle 'bufexplorer.zip'
 UnBundle 'amirh/HTML-AutoCloseTag'
+UnBundle 'suan/vim-instant-markdown'
+Bundle 'iamcco/markdown-preview.vim'
+Bundle 'MattesGroeger/vim-bookmarks'
