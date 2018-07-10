@@ -105,3 +105,6 @@ fi
 set completion-ignore-case on
 
 export USE_CCACHE=1
+
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
