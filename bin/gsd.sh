@@ -7,7 +7,9 @@ fi
 
 select var in `git d --name-only $1~1 $1`
 do
+    cd `git rev-parse --show-toplevel`
     git d $1~1 $1 $var
+    cd -
     break
 done
 
