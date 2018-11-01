@@ -11,6 +11,9 @@ alias la='ls -A'
 alias l='ls -CF'
 alias lla='ls -lha'
 
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 
 #alias du='du -h --max-depth=1'
 alias free='free -m'
@@ -36,6 +39,8 @@ alias a2='adb shell content insert --uri content://settings/system --bind name:s
 alias a3='adb shell content insert --uri content://settings/system --bind name:s:user_rotation --bind value:i:3'
 alias aaon='adb shell content insert --uri content://settings/system --bind name:s:accelerometer_rotation --bind value:i:1'
 alias aaoff='adb shell content insert --uri content://settings/system --bind name:s:accelerometer_rotation --bind value:i:0'
+alias asd='adb shell dumpsys'
+alias asl='adb shell'
 
 alias rscp='rsync -v -P -e ssh'
 alias sshfs='sshfs -o allow_other'

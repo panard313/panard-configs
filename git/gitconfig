@@ -9,7 +9,7 @@
 	d = difftool
 [core]
 	editor = vim
-	pager = more
+	pager = less
     autocrlf = input
 #[color]
 #	ui = auto

@@ -6,6 +6,10 @@ if [ -d $HOME/panard-config ]; then
     source $HOME/panard-config/conf_env
 fi
 
+if [ -d $HOME/panard-config/bin ]; then
+    export PATH="$PATH:$HOME/panard-config/bin"
+fi
+
 if [ -f $CONF_PATH/path_env ]; then
     source $CONF_PATH/path_env
 fi
@@ -21,8 +25,8 @@ HISTCONTROL=ignoredups:ignorespace
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=4000
+HISTFILESIZE=8000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -44,7 +48,7 @@ esac
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
 # should be on the output of commands, not on the prompt
-#force_color_prompt=yes
+force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
@@ -67,6 +71,7 @@ unset color_prompt force_color_prompt
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
@@ -84,7 +89,7 @@ fi
 #function _update_ps1() {
    #export PS1="$(~/bin/powerline-bash.py $?)"
 #}
-   
+
 #export PROMPT_COMMAND="_update_ps1"
 
 # enable programmable completion features (you don't need to enable
@@ -104,7 +109,25 @@ fi
 #ignore case while auto completion
 set completion-ignore-case on
 
-export USE_CCACHE=1
+if [ -f $HOME/.alias ]; then
+    source $HOME/.alias
+fi
+
+
+if [ -f $HOME/.env ]; then
+    source $HOME/.env
+fi
+
 
 bind '"\e[A": history-search-backward'
 bind '"\e[B": history-search-forward'
+
+
+function xgrep() {
+    grep --color=auto -nHri "$@" ./*
+}
+
+function xread() {
+    read -p "Press enter to continue"
+}
+
