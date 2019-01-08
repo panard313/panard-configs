@@ -5,6 +5,8 @@ if [ $# != 1 ]; then
     exit -1;
 fi
 
+OIFS="$IFS"
+IFS=$'\n'
 select var in `git d --name-only $1~1 $1`
 do
     cd `git rev-parse --show-toplevel`
@@ -12,4 +14,5 @@ do
     cd -
     break
 done
+IFS="$OIFS"
 
