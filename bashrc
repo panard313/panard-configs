@@ -131,3 +131,88 @@ function xread() {
     read -p "Press enter to continue"
 }
 
+
+
+
+# BEGIN functions from android build system
+function getandroidtop
+{
+    local TOPFILE=build/core/envsetup.mk
+    if [ -n "$TOP" -a -f "$TOP/$TOPFILE" ] ; then
+        # The following circumlocution ensures we remove symlinks from TOP.
+        (cd $TOP; PWD= /bin/pwd)
+    else
+        if [ -f $TOPFILE ] ; then
+            # The following circumlocution (repeated below as well) ensures
+            # that we record the true directory name and not one that is
+            # faked up with symlink names.
+            PWD= /bin/pwd
+        else
+            local HERE=$PWD
+            local T=
+            while [ \( ! \( -f $TOPFILE \) \) -a \( $PWD != "/" \) ]; do
+                \cd ..
+                T=`PWD= /bin/pwd -P`
+            done
+            \cd $HERE
+            if [ -f "$T/$TOPFILE" ]; then
+                echo $T
+            fi
+        fi
+    fi
+}
+
+function gdir () {
+    if [[ -z "$1" ]]; then
+        echo "Usage: gdir <regex>"
+        return
+    fi
+    local T=$(getandroidtop)
+    local FILELIST
+    if [ ! "$OUT_DIR" = "" ]; then
+        mkdir -p $OUT_DIR
+        FILELIST=$OUT_DIR/filelist
+    else
+        FILELIST=$T/filelist
+    fi
+    if [[ ! -f $FILELIST ]]; then
+        echo "No index file, please create index file first"
+        #(\cd $T; find . -wholename ./out -prune -o -wholename ./.repo -prune -o -type f > $FILELIST)
+        #echo " Done"
+        #echo ""
+    fi
+    local lines
+    lines=($(\grep -i "$1" $FILELIST | sed -e 's/\/[^/]*$//' | sort | uniq))
+    if [[ ${#lines[@]} = 0 ]]; then
+        echo "Not found"
+        return
+    fi
+    local pathname
+    local choice
+    if [[ ${#lines[@]} > 1 ]]; then
+        while [[ -z "$pathname" ]]; do
+            local index=1
+            local line
+            for line in ${lines[@]}; do
+                printf "%6s %s\n" "[$index]" $line
+                index=$(($index + 1))
+            done
+            echo
+            echo -n "Select one: "
+            unset choice
+            read choice
+            if [[ $choice -gt ${#lines[@]} || $choice -lt 1 ]]; then
+                echo "Invalid choice"
+                continue
+            fi
+            pathname=${lines[$(($choice-1))]}
+        done
+    else
+        pathname=${lines[0]}
+    fi
+    \cd $T/$pathname
+}
+# BEGIN functions from android build system
+
+
+
