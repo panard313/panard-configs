@@ -28,7 +28,8 @@ if [ -z $TMUX_POWERLINE_LEFT_STATUS_SEGMENTS ]; then
 		#"tmux_session_info 30 234" \
 		#"text 37 234" \
 		"hostname 37 234" \
-		"ifstat 5 0" \
+		"ifstat_sys 5 0" \
+		"io_wait 3 0" \
 		#"ifstat_sys 30 255" \
 		#"lan_ip 24 255 ${TMUX_POWERLINE_SEPARATOR_RIGHT_BOLD}" \
 		#"wan_ip 24 255" \
