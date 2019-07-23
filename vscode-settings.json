@@ -9,7 +9,7 @@
     //enable easymotion
     "vim.easymotion": true,
     "vim.leader": " ",
-    "vim.otherModesKeyBindingsNonRecursive": [
+    "vim.normalModeKeyBindingsNonRecursive": [
         {
             "before": [
                 "<leader>",
