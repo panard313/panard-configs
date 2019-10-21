@@ -1,29 +1,18 @@
 {
     "git.ignoreLegacyWarning": true,
     "window.zoomLevel": 1,
-    //"editor.lineHeight": 20,
-    "//editor.fontSize": 13,
-    "//editor.fontFamily": "'Monaco for Powerline','Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
+    "editor.lineHeight": 20,
+    "editor.fontSize": 14,
+    "editor.fontFamily": "Fira Code Medium",
+    "editor.fontLigatures": true,
+    "editor.wordWrap": "on",
+    //"editor.fontFamily": "'Monaco for Powerline','Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
     //"editor.fontFamily": "'Source Code Pro for Powerline','Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
     //vim settings
     //enable easymotion
     "vim.easymotion": true,
     "vim.leader": " ",
     "vim.normalModeKeyBindingsNonRecursive": [
-        {
-            "before": [
-                "<leader>",
-                "f",
-                "f"
-            ],
-            "after": [],
-            "commands": [
-                {
-                    "command": "workbench.action.quickOpen",
-                    "args": []
-                },
-            ]
-        },
         {
             "before": [
                 "<leader>",
@@ -79,6 +68,113 @@
                 },
             ]
         },
+        {
+            "before": [
+                "<leader>",
+                "v"
+            ],
+            "after": [],
+            "commands": [
+                {
+                    "command": "open-in-vim.open",
+                    "args": []
+                },
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "h"
+            ],
+            "commands": [
+                "cursorHome"
+            ],
+            "after": [
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l"
+            ],
+            "commands": [
+                "cursorEnd"
+            ],
+            "after": [
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "m",
+                "m",
+            ],
+            "commands": [
+                "bookmarks.toggle"
+            ],
+            "after": [
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "m",
+                "n"
+            ],
+            "commands": [
+                "bookmarks.jumpToNext"
+            ],
+            "after": [
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "m",
+                "p"
+            ],
+            "commands": [
+                "bookmarks.jumpToPrevious"
+            ],
+            "after": [
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "m",
+                "l"
+            ],
+            "commands": [
+                "bookmarks.list"
+            ],
+            "after": [
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "m",
+                "a"
+            ],
+            "commands": [
+                "bookmarks.clear"
+            ],
+            "after": [
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "t",
+                "t"
+            ],
+            "commands": [
+                "workbench.view.extension.outline"
+            ],
+            "after": [
+            ]
+        },
     ],
     "vim.insertModeKeyBindings": [
         {
@@ -105,15 +201,23 @@
                 "j"
             ],
             "after": [
-                "<Right>"
+                "<Left>"
             ]
         }
     ],
     //open in vim settings
-    "//open-in-vim.openMethod": "linux.gnome-terminal",
+    "open-in-vim.openMethod": "linux.gnome-terminal",
     //"open-in-vim.linux.gnome-terminal.args": "--hide-menubar --full-screen"
-    //"open-in-vim.linux.gnome-terminal.args": "",
+    "open-in-vim.linux.gnome-terminal.args": "",
     "java.errors.incompleteClasspath.severity": "ignore",
-    "//terminal.integrated.lineHeight": 1.5,
-    "//terminal.integrated.fontSize": 13,
+    "terminal.integrated.lineHeight": 1.5,
+    "terminal.integrated.fontSize": 13,
+    "terminal.integrated.fontFamily": "Fira Code Medium",
+    "http.proxyStrictSSL": false,
+    "http.proxy": "http://10.128.161.56:82",
+    "gitlens.advanced.messages": {
+        "suppressGitVersionWarning": true,
+        "suppressShowKeyBindingsNotice": true
+    },
+    "workbench.sideBar.location": "left",
 }
