@@ -1,4 +1,4 @@
-
+{
     "git.ignoreLegacyWarning": true,
     "window.zoomLevel": 1,
     "editor.lineHeight": 20,
@@ -6,6 +6,8 @@
     "editor.fontFamily": "Fira Code Medium",
     "editor.fontLigatures": true,
     "editor.wordWrap": "on",
+    "editor.tabSize": 4,
+    "editor.detectIndentation":false,
     "markdown.preview.fontSize": 15,
     "markdown.preview.fontFamily": "'Fira Code Medium', -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'HelveticaNeue-Light', 'Ubuntu', 'Droid Sans', sans-serif",
     //"editor.fontFamily": "'Monaco for Powerline','Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
@@ -180,7 +182,7 @@
                 "t"
             ],
             "commands": [
-                "workbench.view.extension.outline"
+                "workbench.action.gotoSymbol"
             ],
             "after": [
             ]
@@ -291,5 +293,10 @@
         "overview",
         "line"
     ],
+    "outline.showVariables": false,
+    "outline.showKeys": false,
+    "outline.showNumbers": false,
+    "outline.showStrings": false,
+    "outline.showTypeParameters": false,
 
 }
