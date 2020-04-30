@@ -298,5 +298,6 @@
     "outline.showNumbers": false,
     "outline.showStrings": false,
     "outline.showTypeParameters": false,
+    "C_Cpp.errorSquiggles": "Disabled",
 
 }
