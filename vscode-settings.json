@@ -1,4 +1,5 @@
 {
+    //extensions: todo highlight, vim, vscode-icons, 翻译, remote, c/c++, dgb, bracket pair colorizer, bookmarks, gitlens, highlight-icemode, tabnine, git blame, git history, prettier, visual studio intellicode
     "git.ignoreLegacyWarning": true,
     "window.zoomLevel": 1,
     "editor.lineHeight": 20,
