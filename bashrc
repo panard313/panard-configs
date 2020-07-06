@@ -215,4 +215,7 @@ function gdir () {
 # BEGIN functions from android build system
 
 
+bind 'set show-all-if-ambiguous on'
+bind 'TAB:menu-complete'
+
 
