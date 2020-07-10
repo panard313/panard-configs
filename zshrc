@@ -1,5 +1,6 @@
-if [ -d $HOME/panard-config ]; then 
-   source $HOME/panard-config/conf_env
+if [ -d $HOME/panard-configs ]; then 
+   source $HOME/panard-configs/conf_env
+   CONF_PATH=$HOME/panard-configs
 fi
 
 if [ -f $CONF_PATH/path_env  ]; then
@@ -14,7 +15,8 @@ ZSH=$CONF_PATH/oh-my-zsh/
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
-ZSH_THEME="agnoster-cx"
+#ZSH_THEME="agnoster-cx"
+ZSH_THEME="candy-cx"
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -54,7 +56,7 @@ DISABLE_AUTO_UPDATE="true"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(autosuggestions syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 [[ -s /home/chenxiong/.autojump/etc/profile.d/autojump.sh ]] && source /home/chenxiong/.autojump/etc/profile.d/autojump.sh

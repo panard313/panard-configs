@@ -1,0 +1,734 @@
+#!/bin/bash
+
+function toyman() {
+    good "toy - Small toolchain for debugging"
+    good "Ver   :    1.02"
+    good "Author:    Ryan_ZHENG(TRF1309)"
+    good "Since :    Dec, 2017"
+    good "About :    A small toolchain that enable the convenience of debugging. Currently"
+    good "           5 functions are supported once it is sourced (type 'source toys' in"
+    good "           root dir of the source code). They are:\n"
+    echo "  relunch  - read the args from out/projectName.txt or make.ini and automatically"
+    echo "           peform the lunch defined in build/envsetup.sh"
+    echo "  adbpush  - Simplfied Shell command for excecuting 'adb push' with automatically"
+    echo "           identifying the destination path."
+    echo "  adbreset - Simple abbreviation of adb shell stop && adb shell start to restart"
+    echo "           Android system"
+    echo "  adblog   - Simple abbreviation of adb logcat -v time. 1 arg can be added as a"
+    echo "           filter"
+    echo "  prjconfig- Quick access to ProjectConfig.mk related to the project you used"
+    echo "           previously"
+    good "\nappend '-h' to each function for more detail"
+}
+
+print_toy_help(){
+    if [[ ! -n $1 ]]; then
+        echo "print_toy_help need an argument"
+        return
+    fi
+    if [[ "relunch" == $1 ]]; then
+        echo "relunch - Small but easy function to choosecombo once a full build completed"
+        echo "NO Arguments need to be input, but get the project name and build type"
+        echo "according to out/projectName.txt and out/options.txt. Once read from both"
+        echo "files, perform 'source build/envsetup.sh && lunch full_$prj_name-$build_type'"
+    elif [[ "adbpush" == $1 ]]; then
+        echo "Simplfied Shell script for excecuting adb push. Automatically identify the"
+        echo "destination path. Support Multi-Arguments as the source path, and some allias:"
+        echo "adbpush fwk -   to push framework.jar and ext.jar"
+        echo "adbpush svc -   to push services.jar, libandroid_servers.so and recovery.xml"
+        echo "adbpush sensorsvc"
+        echo "            -   to push sensorservice and libsensorservice.so"
+        echo "adbpush audiop"
+        echo "            -   to push all the libs related to audiopolicy"
+    elif [[ "adbreset" == $1 ]]; then
+        echo "Simple abbreviation of adb shell stop && adb shell start to restart the Android"
+        echo "system. This is the faster than reboot, but will only affect the executable bin,"
+        echo "applications."
+        echo "NOTE: framework.jar and some other core library will not be reloaded after"
+        echo "      adbreset, therefore a reboot is required."
+    elif [[ "adblog" == $1 ]]; then
+        echo "Simple abbreviation of adb logcat -v time. 1 arg can be added as a filter. ie:"
+        echo "      'adb logcat -v time | grep $arg'"
+    elif [[ "prjconfig" == $1 ]]; then
+        echo "Quick access to ProjectConfig.mk related to the project you lunch previously, or"
+        echo "      read from out/projectName, or make.ini"
+    fi
+}
+
+getbuildparam(){
+    local prj_list_in_out_dir
+    num=1
+    for file in `ls out/target/product`
+    do
+        if [[ -d out/target/product/$file ]]; then
+            prj_list_in_out_dir[$num]="$file"
+            num=`expr $num + 1`
+        else
+            continue
+        fi
+    done
+    if [[ $num == 2 ]]; then
+        sel=${prj_list_in_out_dir[1]}
+    else
+        while :
+        do
+            num=1
+            echo -e "\nFind below projects under out/target/product:"
+            for prj in ${prj_list_in_out_dir[@]}
+            do
+                echo -e "    $num. $prj"
+                num=`expr $num + 1`
+            done
+            echo -e ""
+            read -p "Choose the target project:" sel
+            if [[ -n $sel && `echo $sel | grep -o '[0-9]*'` == $sel && $sel -lt $num && $sel -gt 0 ]];then
+                sel=${prj_list_in_out_dir[$sel]}
+                echo "NUMBER->$sel"
+                break;
+            else
+                match=0
+                for prj in ${prj_list_in_out_dir[@]}
+                do
+                    if [[ $sel == $prj ]]; then
+                        echo "PRJNAME->$prj"
+                        match=1
+                        break;
+                    fi
+                done
+                if [[ $match == 1 ]]; then
+                    break
+                fi
+            fi
+            echo -e "\n${RED}***** Invalid Input ($sel), Please Choose Again *****${NO_COLOR}"
+        done
+    fi
+    build_config="out/target/product/$sel/previous_build_config.mk"
+    if [[ -f "out/target/product/$sel/previous_build_config.mk" ]]; then
+        prj_name=`cat out/target/product/$sel/previous_build_config.mk | grep -o 'PREVIOUS_BUILD_CONFIG *:= *\(.*\)' | sed "s/^PREVIOUS_BUILD_CONFIG *:= *[^_\w]*_\(.*\)-.*-.*$/\1/g"`
+        build_type=`cat out/target/product/$sel/previous_build_config.mk  | grep -o 'PREVIOUS_BUILD_CONFIG *:= *\(.*\)' | sed "s/^PREVIOUS_BUILD_CONFIG *:= *[^_\w]*_.*-\(.*\)-.*$/\1/g"`
+    else
+        die "out/target/product/$sel/previous_build_config.mk不存在，脚本终止"
+        return
+    fi
+    if [[ "user" != $build_type && "userdebug" != $build_type && "eng" != $build_type ]]; then
+        die "编译类型$build_type未知，脚本终止"
+        return
+    fi
+    dir=`find device -maxdepth 3 -type d -name $prj_name`
+    if [[ $dir == '' ]]; then
+        die "device目录下找不到工程$prj_name，脚本终止"
+        return
+    fi
+    echo "$prj_name-$build_type@$dir"
+}
+
+function relunch() {
+    if [[ -n $1 && '-h' == $1 ]]; then
+        print_toy_help "relunch"
+        return
+    fi
+    if [[ `test -d out && echo true` != true ]]; then
+        die 'out目录不存在，脚本终止'
+        return
+    fi
+    is_force_clean=false
+    if [[ -n $1 && '-f' == $1 && -f out/.relunch_mark ]]; then
+        good "参数-f:清除缓存数据-->"
+        rm out/.relunch_mark
+        is_force_clean=true
+    fi
+    if [[ `test -f out/.relunch_mark && echo true` == true ]]; then
+        good "读取缓存数据-->"
+        prj_name=`grep -o PROJ=.* out/.relunch_mark | sed "s/PROJ=\(.*\)/\1/g"`
+        build_type=`grep -o TYPE=.* out/.relunch_mark | sed "s/TYPE=\(.*\)/\1/g"`
+        dir=`grep -o PATH=.* out/.relunch_mark | sed "s/PATH=\(.*\)/\1/g"`
+        if [[ `ls $dir` == "" ]]; then
+            die "$dir不存在，脚本终止"
+            return
+        fi
+    else
+        if [[ $is_force_clean == false ]]; then
+            good "无缓存数据，获取中-->"
+        fi
+        build_param=$(getbuildparam)
+        if [[ ! -n $build_param ]]; then
+            die "Getting the Previous Build Param Failed!"
+            return
+        fi
+        prj_name=`echo $build_param | sed "s/\(.*\)-\(.*\)@\(.*\)/\1/g"`
+        build_type=`echo $build_param | sed "s/\(.*\)-\(.*\)@\(.*\)/\2/g"`
+        dir=`echo $build_param | sed "s/\(.*\)-\(.*\)@\(.*\)/\3/g"`
+        echo -e "PROJ=$prj_name\nTYPE=$build_type\nPATH=$dir" > out/.relunch_mark
+    fi
+    good "工程名=$prj_name"
+    good "编译类型=$build_type"
+    source build/envsetup.sh >/dev/null 2>&1 && lunch full_$prj_name-$build_type >/dev/null 2>&1
+    if [[ `echo $dir | grep alibaba` != "" ]]; then
+        export YUNOS_PROJECT_NAME=$prj_name
+    else
+        export YUNOS_PROJECT_NAME=""
+    fi
+}
+
+selected_prj=
+
+function select_prj() {
+    prj_list=(`ls out/target/product/ --file-type | grep / | sed "s#\(.*\)/#\1#g"`)
+    #echo "${prj_list[*]}"
+    len=${#prj_list[*]}
+    if [[ ${#prj_list[*]} == 1 ]]; then
+        selected_prj=${prj_list[0]}
+        return
+    fi
+    echo "Available Projects are as below:"
+    i=0
+    while [ $i -lt $len ]
+    do
+        echo "[$i] - ${prj_list[$i]}"
+        ((i++))
+    done
+    while [ 1 ]
+    do
+        echo -n "Choose the project:[0]:"
+        read choice
+        if [[ -z $choice ]]; then
+            selected_prj=${prj_list[0]}
+            return
+        elif [[ `echo $choice | grep -w "[0-9]\+"` ]]; then
+            if [[ $choice -lt $len ]]; then
+                selected_prj=${prj_list[$choice]}
+                return
+            fi
+        else
+            choice=`echo ${prj_list[*]} | grep -o $choice`
+            if [[ -n $choice ]]; then
+                selected_prj=$choice
+                return
+            fi
+        fi
+        echo "Invalid selection, please check and try again!"
+    done
+    
+}
+
+dopush() {
+    select_prj
+    prj=$selected_prj
+    if [[ -z $prj ]]; then
+        echo "Invalid project name"
+        return
+    fi
+    
+    echo "Project is $prj"
+    for install in $*
+    do
+        if [ "$install" = fwk ] ; then
+            install=`echo out/target/product/$prj/system/framework/framework.jar out/target/product/$prj/system/framework/ext.jar`
+            dopush $install
+            continue
+        elif [ "$install" = svc ] ; then
+            install=`echo out/target/product/$prj/system/framework/services.jar \
+                    out/target/product/$prj/system/lib/libandroid_servers.so \
+                    out/target/product/$prj/system/etc/recovery.xml`
+            dopush $install
+            continue
+        elif [ "$install" = sensorsvc ] ; then
+            install=`echo out/target/product/$prj/system/bin/sensorservice \
+                    out/target/product/$prj/system/lib/libsensorservice.so`
+            dopush $install
+            continue
+        elif [ "$install" = audiop ] ; then
+            install=`echo out/target/product/$prj/system/lib/libaudiopolicyenginedefault.so \
+                    out/target/product/$prj/system/lib/libaudiopolicymanagerdefault.so \
+                    out/target/product/$prj/system/lib/libaudiopolicymanager.so \
+                    out/target/product/$prj/system/lib/libaudiopolicyservice.so \
+                    out/target/product/$prj/system/lib/libsensorservice.so`
+            dopush $install
+            continue
+        fi
+        path=`echo $install | grep -o $prj.* | sed "s/$prj\(.*\)/\1/g"`
+        if  [ ! -n "$path" ] ;then
+            echo "WARNING: Invalid Path of $install, skipping"
+            continue
+        fi
+        echo adb push $install $path
+        adb push $install $path
+    done
+}
+
+function adbpush() {
+    if [[ -n $1 && '-h' == $1 ]]; then
+        print_toy_help "adbpush"
+        return
+    fi
+    args=$*
+    echo adb shell setenforce 0
+    adb shell setenforce 0
+    # If alisec.mod installed in the devices, this step is necessary
+    #~ adb shell 'echo "enable 0;" > /proc/alog'
+    echo adb remount
+    adb remount
+    dopush $args
+}
+
+function adbreset() {
+    if [[ -n $1 && '-h' == $1 ]]; then
+        print_toy_help "adbreset"
+        return
+    fi
+    adb shell stop; sleep 1; adb shell start
+}
+
+function adblog() {
+    if [[ -n $1 && '-h' == $1 ]]; then
+        print_toy_help "adblog"
+        return
+    fi
+    arg=$1
+    if [ -n $arg ] ;then
+        adb logcat -b all | grep -i $arg
+    else
+        adb logcat -b all
+    fi
+}
+
+function prjconfig() {
+if [[ -n $1 && '-h' == $1 ]]; then
+    print_toy_help "prjconfig"
+    return
+fi
+if [[ ! -n `whereis geany` ]]; then
+    die "geany is not installed!"
+fi
+#Read from the $PATH
+prj=$YUNOS_PROJECT_NAME
+#If failed, read from out/
+if [[ ! -n $prj && -f out/.relunch_mark ]];then
+    prj=`grep -o PROJ=.* out/.relunch_mark | sed "s/PROJ=\(.*\)/\1/g"`
+    dir=`grep -o PATH=.* out/.relunch_mark | sed "s/PATH=\(.*\)/\1/g"`
+elif [[ ! -n $prj ]];then
+    build_param=$(getbuildparam)
+    if [[ ! -n $build_param ]]; then
+        die "Getting the Previous Build Param Failed!"
+        return
+    fi
+    prj=`echo $build_param | sed "s/\(.*\)-\(.*\)@\(.*\)/\1/g"`
+    build_type=`echo $build_param | sed "s/\(.*\)-\(.*\)@\(.*\)/\2/g"`
+    dir=`echo $build_param | sed "s/\(.*\)-\(.*\)@\(.*\)/\3/g"`
+    echo -e "PROJ=$prj\nTYPE=$build_type\nPATH=$dir" > out/.relunch_mark
+fi
+#Give up
+if [[ ! -n $dir ]];then
+    echo 'failed to locate the ProjectConfig.mk for $prj_name'
+    return
+fi
+geany $dir/ProjectConfig.mk &
+}
+
+function git_clean() {
+    git clean -fd prebuilts/python/
+}
+
+function reposync (){
+    if [ -n $1 ] ;then
+        arg=$1
+        arg=`echo $arg | sed "s#^\(.*\)/#\1#g"`
+        grep -ro "path=\"$arg[/.^\"]*\"" .repo/manifest.xml | sed "s/path=\"\(.*\)\"/\1/g" | xargs repo sync -c
+    else
+        repo sync -c -j8 --no-tag
+    fi
+}
+
+function adbdd (){
+    count=1
+    if [ $# -gt 0 ] ;then
+        count=$1
+    fi
+    index=0
+    while [ $index -lt $count ]
+    do
+        adb shell "dd if=/dev/zero of=/sdcard/test.$index count=2000000"
+        ((index++))
+    done
+}
+
+function analyze_native_lib (){
+    if [ -n $1 ] ;then
+        arg=$1
+    else
+        arg=.
+    fi
+    apk_list=`find $arg -name *.apk`
+    for apk in $apk_list
+    do
+        code=`aapt dump badging $apk | grep native | grep 64`
+        if [[ -n $code ]];then
+            echo "$code"
+            echo "$apk"
+        fi
+    done
+}
+
+function pageinfo (){
+    while [ 1 ]
+    do
+        meminfo=`adb shell "cat proc/meminfo | grep -i active"`
+        count=1
+        for arg in $meminfo
+        do
+            if [[ $count -lt 6 ]]; then
+                echo -e -n "$arg\t"
+                ((count++))
+            else
+                echo -e "$arg"
+                count=1
+            fi
+        done
+        echo -e ""
+        sleep 0.1
+    done
+}
+
+function setup_all (){
+    args=$*
+    target=""
+    while [ -z $target ]
+    do
+        device_list=`adb devices | grep -w device | sed "s/\(.*\) *device/\1/g"`
+        device_num=`adb devices | grep -w device | wc -l`
+        echo "Available devices are listed below:"
+        index=0
+        for device in $device_list
+        do
+            echo -e "\n [$index] - $device\n"
+            device_array+=("$device")
+            ((index++))
+        done
+        if [[ $index == 0 ]]; then
+            echo "No device connected, exit."
+            return
+        fi
+        echo -n "Please select one as target device[0]:"
+        read answer
+        
+        if [[ -z $answer ]];then
+            target=${device_array[0]}
+        elif [[ `echo $answer | grep -w "[0-9]\+"` ]];then
+            if [[ $answer -lt $index ]];then
+                target=${device_array[$answer]}
+            fi
+        else
+            for device in $device_list
+            do
+                echo "$device"
+                if [[ $device == $answer ]];then
+                    target=$answer
+                    break
+                fi
+            done
+        fi
+        if [[ -n $target ]];then
+            break
+        fi    
+        echo
+        echo "I didn't understand your response.  Please try again."
+        echo
+    done
+    for arg in $args
+    do
+        apks=`find $arg -name "*.apk"`
+        for apk in $apks
+        do
+            echo "Installing - $apk"
+            time adb -s $target install -g $apk
+        done
+    done
+}
+
+function get_package_entry() {
+    args=$*
+    for arg in $args
+    do
+        apks=`find $arg -name "*.apk"`
+        for apk in $apks
+        do
+            packageName=`aapt dump badging $apk | grep "package" | sed "s/package: name='\([^ ]*\)' .*/\1/g"`
+            activityName=`aapt dump badging $apk | grep "launchable-activity" | sed "s/launchable-activity: name='\([^ ]*\)' .*/\1/g"`
+            #~ echo "$activityName"
+            echo "$packageName/$activityName"
+        done
+    done
+}
+
+function pull_all() {
+    args=$*
+    while [ -z $target ]
+    do
+        device_list=`adb devices | grep -w device | sed "s/\(.*\) *device/\1/g"`
+        device_num=`adb devices | grep -w device | wc -l`
+        echo "Available devices are listed below:"
+        index=0
+        for device in $device_list
+        do
+            echo -e "\n [$index] - $device\n"
+            device_array+=("$device")
+            ((index++))
+        done
+        if [[ $index == 0 ]]; then
+            echo "No device connected, exit."
+            exit
+        fi
+        echo -n "Please select one as target device[0]:"
+        read answer
+        
+        if [[ -z $answer ]];then
+            target=${device_array[0]}
+        elif [[ `echo $answer | grep -w "[0-9]\+"` ]];then
+            if [[ $answer -lt $index ]];then
+                target=${device_array[$answer]}
+            fi
+        else
+            for device in $device_list
+            do
+                echo "$device"
+                if [[ $device == $answer ]];then
+                    target=$answer
+                    break
+                fi
+            done
+        fi
+        if [[ -n $target ]];then
+            break
+        fi    
+        echo
+        echo "I didn't understand your response.  Please try again."
+        echo
+    done
+    if [[ ! -d $target ]];then
+        mkdir $target
+    fi
+    apks=`adb -s $target shell dumpsys package | grep path: | grep base.apk | sed "s/ *path: *\(.*\)/\1/g"`
+    for apk in $apks
+    do
+        pkgName=`echo $apk | sed "s#/data/app/\(.*\)-.*/base.apk#\1#g"`
+        adb pull $apk $target/$pkgName.apk
+    done
+}
+
+function set_global_target() {
+    target=$1
+    while [ -z $target ]
+        do
+            device_list=`adb devices | grep -w device | sed "s/\(.*\) *device/\1/g"`
+            device_num=`adb devices | grep -w device | wc -l`
+            echo "Available devices are listed below:"
+            index=0
+            for device in $device_list
+            do
+                echo -e "\n [$index] - $device\n"
+                device_array+=("$device")
+                ((index++))
+            done
+            if [[ $index == 0 ]]; then
+                echo "No device connected, exit."
+                return
+            fi
+            echo -n "Please select one as target device[0]:"
+            read answer
+            if [[ -z $answer ]];then
+                target=${device_array[0]}
+            elif [[ `echo $answer | grep -w "[0-9]\+"` ]];then
+                if [[ $answer -lt $index ]];then
+                    target=${device_array[$answer]}
+                fi
+            else
+                for device in $device_list
+                do
+                    echo "$device"
+                    if [[ $device == $answer ]];then
+                        target=$answer
+                        break
+                    fi
+                done
+            fi
+            if [[ -n $target ]];then
+                break
+            fi    
+            echo
+            echo "I didn't understand your response.  Please try again."
+            echo
+        done
+    export GLOBAL_TOY_ANDROID_TARGET=$target
+}
+
+function test_app_launch_time() {
+    cmpName=$1
+    count=$2
+    target=$GLOBAL_TOY_ANDROID_TARGET
+    while [ -z $target ]
+    do
+        device_list=`adb devices | grep -w device | sed "s/\(.*\) *device/\1/g"`
+        device_num=`adb devices | grep -w device | wc -l`
+        echo "Available devices are listed below:"
+        index=0
+        for device in $device_list
+        do
+            echo -e "\n [$index] - $device\n"
+            device_array+=("$device")
+            ((index++))
+        done
+        if [[ $index == 0 ]]; then
+            echo "No device connected, exit."
+            return
+        fi
+        echo -n "Please select one as target device[0]:"
+        read answer
+        if [[ -z $answer ]];then
+            target=${device_array[0]}
+        elif [[ `echo $answer | grep -w "[0-9]\+"` ]];then
+            if [[ $answer -lt $index ]];then
+                target=${device_array[$answer]}
+            fi
+        else
+            for device in $device_list
+            do
+                echo "$device"
+                if [[ $device == $answer ]];then
+                    target=$answer
+                    break
+                fi
+            done
+        fi
+        if [[ -n $target ]];then
+            break
+        fi    
+        echo
+        echo "I didn't understand your response.  Please try again."
+        echo
+    done
+    loop=0
+    totaltime=0
+    waittime=0
+    max=0
+    min=0
+    while [[ $loop -lt $count ]]
+    do
+        pkgName=`echo $cmpName | sed "s#\([.^/]*\)/.*#\1#g"`
+        echo "Launching - $pkgName for round=$loop"
+        result=`adb -s $target shell am start -S -W $cmpName`
+        
+        tmp=`echo $result | egrep -o "TotalTime: [0-9]+" |  egrep -o "[0-9]+"`
+        echo "TotalTime: $tmp"
+        totaltime=`expr $totaltime + $tmp`
+        
+        tmp=`echo $result | egrep -o "WaitTime: [0-9]+" |  egrep -o "[0-9]+"`
+        echo "WaitTime: $tmp"
+        waittime=`expr $waittime + $tmp`
+        if [[ $max == 0 || $max -lt $tmp ]]; then
+            max=$tmp
+        fi
+        if [[ $min == 0 || $min -gt $tmp ]]; then
+            min=$tmp
+        fi
+        adb -s $target shell input keyevent 3
+        sleep 1
+        adb -s $target shell am force-stop $pkgName
+        sleep 10
+        ((loop++))
+    done
+    
+    totaltime=`expr $totaltime / $count`
+    waittime=`expr $waittime / $count`
+    #TODO - Add an average value calculated by removing max and min
+
+    echo "----------  Result ----------"
+    echo "|Average TotalTime : $totaltime   |"
+    echo "|Average WaitTime  : $waittime   |"
+    echo "|Max WaitTime  : $max   |"
+    echo "|Min WaitTime  : $min   |"
+    echo "----------  Result ----------"
+}
+
+function dumpmeminfo() {
+    time adb shell dumpsys -t 60 meminfo -S
+}
+
+function showcgroup() {
+    arg=$1
+    if [[ -z $arg ]]; then
+        arg="dev/cpuset/top-app/ui/tasks"
+    fi
+    echo "Showing task info under $arg:"
+    pids=`adb shell cat $arg`
+    pids=`echo $pids | tr ' ' '|'`
+    adb shell ps -A -T | head -1
+    adb shell ps -A -T | egrep $pids
+}
+
+function flashall_ab() {
+    path=$1
+    if [[ -z $path ]];then
+        echo "No path given, exiting..."
+        return
+    fi
+    #~ targetImg="persist oempersist"
+    targetImg="$targetImg metadata super userdata xbl_a xbl_b 
+                xbl_config_a xbl_config_b swversion abl_a abl_b 
+                boot_a boot_b recovery_a recovery_b vbmeta_system 
+                dtbo_a dtbo_b splash carrier system product vendor"
+    for target in $targetImg
+    do
+        fileName=`echo $target | sed "s/\(.*\)_[ab]/\1/g"`
+        if [[ -f $1/$fileName.img ]]; then
+            fileName=$1/$fileName.img
+        elif [[ -f $1/$fileName.mbn ]]; then
+            fileName=$1/$fileName.mbn
+        elif [[ -f $1/$fileName.elf ]]; then
+            fileName=$1/$fileName.elf
+        else
+            continue
+        fi
+        echo "exec...fastboot flash $target $fileName"
+        fastboot flash $target $fileName
+    done
+    
+}
+
+function flashall() {
+    path=$1
+    if [[ -z $path ]];then
+        echo "No path given, exiting..."
+        return
+    fi
+    #~ targetImg="persist oempersist"
+    targetImg="$targetImg abl ablbak boot vbmeta vbmetabak 
+                vbmeta_system dtbo dtbobak system product vendor"
+    for target in $targetImg
+    do
+        fileName=`echo $target | sed "s/\(.*\)bak/\1/g"`
+        if [[ -f $1/$fileName.img ]]; then
+            fileName=$1/$fileName.img
+        elif [[ -f $1/$fileName.mbn ]]; then
+            fileName=$1/$fileName.mbn
+        elif [[ -f $1/$fileName.elf ]]; then
+            fileName=$1/$fileName.elf
+        else
+            continue
+        fi
+        echo "exec...fastboot flash $target $fileName"
+        fastboot flash $target $fileName
+    done
+    
+}
+
+function install_and_remove() {
+    setup_all $1
+    packageName=`get_package_entry $1 | sed "s#\(.*\)/.*#\1#g"`
+    echo "packageName=$packageName"
+    for package in $packageName
+    do
+        echo "uninstall $package..."
+        adb -s $target shell pm uninstall $package
+    done
+    
+}
