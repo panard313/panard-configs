@@ -49,6 +49,7 @@
     b = branch
     mg = merge
     s = stash
+    t = rev-parse --show-toplevel
 
 [commit]
-    template = /home/panard/panard-config/git/gitmsg.txt
+    template = ~/panard-config/git/gitmsg.txt
