@@ -2,7 +2,7 @@
 
 run_segment() {
 	if shell_is_linux; then
-		cpu_using=$[100-$(vmstat 1 2|tail -1|awk '{print $15}')]
+		cpu_using=$(vmstat 1 2|tail -1|awk '{print $15}')
 	elif shell_is_osx; then
 		#cpus_line=$(top -e -l 1 | grep "CPU usage:" | sed 's/CPU usage: //')
 		cpus_line=$(top -l 1 | grep "CPU usage:" | sed 's/CPU usage: //')
