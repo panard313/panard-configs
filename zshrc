@@ -99,10 +99,35 @@ if [ -f $CONF_PATH/z.sh ]; then
    source $CONF_PATH/z.sh
 fi
 
-#ls colors from linux deepin
-if [[ ("$TERM" = *256color || "$TERM" = screen* || "$TERM" = xterm* ) && -f $CONF_PATH/lscolor-256color ]]; then
-    eval $(dircolors -b $CONF_PATH/lscolor-256color)
-else
-    eval $(dircolors)
-fi
+case `uname` in
+  Linux)
+    # commands for Linux go here
+	#ls colors from linux deepin
+	if [[ ("$TERM" = *256color || "$TERM" = screen* || "$TERM" = xterm* ) && -f $CONF_PATH/lscolor-256color ]]; then
+	    eval $(dircolors -b $CONF_PATH/lscolor-256color)
+	else
+	    eval $(dircolors)
+	fi
+  ;;
+  Darwin)
+    # commands for OS X go here
+	#PATH for anaconda2
 
+	export PATH=$PATH:/Volumes/CS-Data/Anaconda2/anaconda2/bin
+
+	export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"
+
+	# HomeBrew
+	export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
+	export PATH="/usr/local/bin:$PATH"
+	export PATH="/usr/local/sbin:$PATH"
+	# HomeBrew END
+
+	export LC_ALL=C
+	export LC_ALL=en_US.UTF-8
+	export LANG=en_US.UTF-8
+  ;;
+  FreeBSD)
+    # commands for FreeBSD go here
+  ;;
+esac
