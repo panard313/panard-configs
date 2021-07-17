@@ -1077,7 +1077,6 @@
                                             "^org\\.virtualbox\\.app\\.VirtualBoxVM$",
                                             "^org\\.vmware\\.fusion$",
                                             "^com\\.parallels\\.desktop\\.console$",
-                                            "^com\\.microsoft\\.VSCode$",
                                             "^com\\.jetbrains\\.intellij\\.ce$",
                                             "^com\\.jetbrains\\.pycharm$",
                                             "^com\\.sublimetext\\.3$",
@@ -1691,7 +1690,6 @@
                                             "^org\\.virtualbox\\.app\\.VirtualBoxVM$",
                                             "^org\\.vmware\\.fusion$",
                                             "^com\\.parallels\\.desktop\\.console$",
-                                            "^com\\.microsoft\\.VSCode$",
                                             "^com\\.jetbrains\\.intellij\\.ce$",
                                             "^com\\.jetbrains\\.pycharm$",
                                             "^com\\.sublimetext\\.3$",
@@ -1942,6 +1940,82 @@
                                 "to": [
                                     {
                                         "key_code": "z",
+                                        "modifiers": [
+                                            "command"
+                                        ]
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "1 (Ctrl)",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "bundle_identifiers": [
+                                            "^com\\.microsoft\\.VSCode$",
+                                            "^com\\.jetbrains\\.intellij\\.ce$",
+                                            "^com\\.jetbrains\\.pycharm$",
+                                            "^com\\.sublimetext\\.3$"
+                                        ],
+                                        "type": "frontmost_application_unless"
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "1",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "control"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "1",
+                                        "modifiers": [
+                                            "command"
+                                        ]
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "2 (Ctrl)",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "bundle_identifiers": [
+                                            "^com\\.microsoft\\.VSCode$",
+                                            "^com\\.jetbrains\\.intellij\\.ce$",
+                                            "^com\\.jetbrains\\.pycharm$",
+                                            "^com\\.sublimetext\\.3$"
+                                        ],
+                                        "type": "frontmost_application_unless"
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "2",
+                                    "modifiers": {
+                                        "mandatory": [
+                                            "control"
+                                        ],
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "2",
                                         "modifiers": [
                                             "command"
                                         ]
@@ -2222,6 +2296,27 @@
                           "to": [
                             {
                               "key_code": "tab",
+                              "modifiers": ["left_command"]
+                            }
+                          ],
+                          "type": "basic"
+                        }
+                     ]
+                    },
+                    {
+                     "description": "Application windows cycle (Alt+`)",
+                     "manipulators": [
+                        {
+                          "from": {
+                            "key_code": "grave_accent_and_tilde",
+                            "modifiers": {
+                              "mandatory": ["left_option"],
+                              "optional": ["any"]
+                            }
+                          },
+                          "to": [
+                            {
+                              "key_code": "grave_accent_and_tilde",
                               "modifiers": ["left_command"]
                             }
                           ],

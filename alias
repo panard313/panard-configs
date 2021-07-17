@@ -4,7 +4,6 @@ alias ...='cd ../../..'
 alias ....='cd ../../../..'
 alias .....='cd ../../../../..'
 
-alias ls='ls --color=auto'
 alias ll='ls -lFh'
 alias lh='ls -lh'
 alias lr='ls -lhrt'
@@ -53,8 +52,6 @@ alias et='emacsclient -t'
 alias 100='ssh chenxiong@192.168.1.100'
 alias 31='ssh panard@33.33.33.31'
 alias 216='ssh -p 22222 panard@216.189.156.87'
-alias grep="/bin/grep $GREP_OPTIONS"
-unset GREP_OPTIONS
 
 alias gsd='gsd.sh'
 alias gl='git log --date=iso-strict'
@@ -66,4 +63,3 @@ alias cr='croot'
 alias fn='fn.sh'
 
 alias xo='xdg-open'
-alias xop='xdg-open `pwd`'

@@ -35,18 +35,5 @@
     {
         "key": "ctrl+shift+d",
         "command": "-workbench.view.debug"
-    },
-    {
-        "key": "ctrl+3",
-        "command": "-numberedBookmarks.jumpToBookmark3",
-        "when": "editorTextFocus"
-    },
-    {
-        "key": "ctrl+3",
-        "command": "-workbench.action.focusThirdEditorGroup"
-    },
-    {
-        "key": "ctrl+4",
-        "command": "-workbench.action.focusFourthEditorGroup"
     }
 ]
